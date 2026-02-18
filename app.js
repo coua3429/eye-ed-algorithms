@@ -209,19 +209,24 @@ function escapeHtml(str) {
 }
 function summaryText() {
   const lines = [];
-  lines.push(algo?.title ? `Algorithm: ${algo.title}` : "Algorithm");
-  if (history.length) {
-    lines.push("");
-    lines.push("Path taken:");
-    history.forEach((h, i) => lines.push(`${i+1}. ${h.q} → ${h.a}`));
-  }
+  lines.push(`Presenting complaint: ${algo?.title || ""}`);
+  lines.push(`Working differential: [Type here]`);
+  lines.push(`Examination summary: [Type here]`);
+  
   const node = algo?.nodes?.[currentNodeId];
+  let plan = "Plan: ";
   if (node?.type === "outcome") {
-    lines.push("");
-    lines.push("Outcome / next steps:");
-    lines.push(node.title ?? "Outcome");
-    (node.bullets ?? []).forEach(b => lines.push(`- ${b}`));
+    plan += (node.title ?? "Outcome") + " - " + (node.bullets ?? []).join("; ");
+  } else {
+    plan += "[Type here]";
   }
+  lines.push(plan);
+  
+  if (history.length) {
+    lines.push("\n--- Triage Pathway Log ---");
+    history.forEach((h, i) => lines.push(`${i+1}. ${h.q} -> ${h.a}`));
+  }
+  
   return lines.join("\n");
 }
 async function copySummary() {
