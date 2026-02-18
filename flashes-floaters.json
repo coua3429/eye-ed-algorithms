@@ -1,0 +1,131 @@
+{
+  "id": "flashes-floaters",
+  "title": "Flashing Lights and Floaters (Acute)",
+  "disclaimer": [
+    "Acute onset flashing lights and floaters should undergo a dilated fundus examination[cite: 683].",
+    "Perform slit lamp examination to see anterior vitreous; check retina with scleral depression or contact biomicroscopy (3 mirror)[cite: 688]."
+  ],
+  "start": "q1",
+  "nodes": {
+    "q1": {
+      "type": "question",
+      "text": "Is there blood, cells or pigment in the vitreous? [cite: 689]",
+      "answers": [
+        { "label": "No", "next": "o_discharge" },
+        { "label": "Yes", "next": "q2" }
+      ]
+    },
+    "o_discharge": {
+      "type": "outcome",
+      "title": "Reassure and Discharge [cite: 690]",
+      "severity": "routine",
+      "bullets": [
+        "Examine to confirm a flat retina and no other ocular pathology[cite: 690].",
+        "Then reassure and discharge[cite: 690]."
+      ]
+    },
+    "q2": {
+      "type": "question",
+      "text": "What type of cells/debris are present? [cite: 692, 693, 696]",
+      "answers": [
+        { "label": "Blood cells", "next": "o_vh" },
+        { "label": "Inflammatory cells (vitritis)", "next": "o_vitritis" },
+        { "label": "Tobacco dust", "next": "q3" }
+      ]
+    },
+    "o_vh": {
+      "type": "outcome",
+      "title": "Vitreous Haemorrhage [cite: 694]",
+      "severity": "urgent",
+      "bullets": [
+        "Look for vitreous haemorrhage[cite: 694].",
+        "Explore for systemic abnormality e.g. diabetes and treat accordingly[cite: 694]."
+      ]
+    },
+    "o_vitritis": {
+      "type": "outcome",
+      "title": "Vitritis [cite: 696]",
+      "severity": "urgent",
+      "bullets": [
+        "Any other associated inflammatory sign in retina present - refer to specialist[cite: 698]."
+      ]
+    },
+    "q3": {
+      "type": "question",
+      "text": "Look for a PVD/Weiss ring. What is the finding? [cite: 697]",
+      "answers": [
+        { "label": "PVD alone", "next": "o_pvd_alone" },
+        { "label": "PVD with vitreous haemorrhage", "next": "q4" },
+        { "label": "PVD with retinal tear", "next": "o_tear" },
+        { "label": "PVD with RD (Retinal Detachment)", "next": "q5" }
+      ]
+    },
+    "o_pvd_alone": {
+      "type": "outcome",
+      "title": "PVD Alone [cite: 699]",
+      "severity": "routine",
+      "bullets": [
+        "Observe[cite: 700].",
+        "Discharge with RD warning symptoms[cite: 701]."
+      ]
+    },
+    "q4": {
+      "type": "question",
+      "text": "Severity of Vitreous Haemorrhage? [cite: 703, 705]",
+      "answers": [
+        { "label": "Mild VH with peripheral retina seen and no retinal tear found", "next": "o_mild_vh" },
+        { "label": "Dense VH with no retinal view", "next": "o_dense_vh" }
+      ]
+    },
+    "o_mild_vh": {
+      "type": "outcome",
+      "title": "Mild Vitreous Haemorrhage [cite: 703]",
+      "severity": "urgent",
+      "bullets": [
+        "Observe with RD warning signs and close follow up[cite: 704]."
+      ]
+    },
+    "o_dense_vh": {
+      "type": "outcome",
+      "title": "Dense Vitreous Haemorrhage [cite: 705]",
+      "severity": "emergency",
+      "bullets": [
+        "Perform B-scan[cite: 705].",
+        "Urgent referral to VR team for early vitrectomy[cite: 707]."
+      ]
+    },
+    "o_tear": {
+      "type": "outcome",
+      "title": "Retinal Tear [cite: 708]",
+      "severity": "emergency",
+      "bullets": [
+        "Urgent laser retinopexy[cite: 709].",
+        "Review in an appropriate clinic in a 1-2 weeks time[cite: 710]."
+      ]
+    },
+    "q5": {
+      "type": "question",
+      "text": "Urgent VR referral required. Is the macula on or off? [cite: 712, 713, 714]",
+      "answers": [
+        { "label": "Macula sparing RD (Macula On)", "next": "o_mac_on" },
+        { "label": "Macula off RD", "next": "o_mac_off" }
+      ]
+    },
+    "o_mac_on": {
+      "type": "outcome",
+      "title": "Macula Sparing RD [cite: 713]",
+      "severity": "emergency",
+      "bullets": [
+        "Same day referral[cite: 715]."
+      ]
+    },
+    "o_mac_off": {
+      "type": "outcome",
+      "title": "Macula Off RD [cite: 714]",
+      "severity": "urgent",
+      "bullets": [
+        "Referral in 1-2 days[cite: 715]."
+      ]
+    }
+  }
+}
