@@ -4,9 +4,11 @@ const el = (id) => document.getElementById(id);
 const homeView = el("homeView");
 const wizardView = el("wizardView");
 
+const homeSearchInput = el("homeSearchInput");
 const algoList = el("algoList");
 const algoTitle = el("algoTitle");
 
+const redFlagsBlock = el("redFlagsBlock");
 const questionBlock = el("questionBlock");
 const questionText = el("questionText");
 const questionHelp = el("questionHelp");
@@ -29,18 +31,24 @@ const copyStatus = el("copyStatus");
 const treeView = el("treeView");
 const treeSearch = el("treeSearch");
 
+// Add your new JSON files to this array as you create them
 const ALGOS = [
   { id: "red-eye", title: "Red eye", path: "data/red-eye.json", blurb: "Trauma/non-trauma, IOP, pain/photophobia → next steps" },
+  { id: "double-vision", title: "Double Vision & Strabismus", path: "data/double-vision.json", blurb: "Monocular vs Binocular, Cranial Nerve Palsies" },
+  { id: "flashes-floaters", title: "Flashes & Floaters", path: "data/flashes-floaters.json", blurb: "Acute onset, PVD, tears, detachments" }
 ];
 
 let algo = null;
 let history = [];
 let currentNodeId = null;
+let favourites = JSON.parse(localStorage.getItem("eyeAlgosFavs") || "[]");
+let recents = JSON.parse(localStorage.getItem("eyeAlgosRecents") || "[]");
 
 function saveState() {
   const state = { algoId: algo?.id ?? null, history, currentNodeId };
   localStorage.setItem(STATE_KEY, JSON.stringify(state));
 }
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STATE_KEY);
@@ -48,15 +56,18 @@ function loadState() {
     return JSON.parse(raw);
   } catch { return null; }
 }
+
 function setView(which) {
   if (which === "home") {
     homeView.classList.remove("hidden");
     wizardView.classList.add("hidden");
+    initHome(homeSearchInput.value); // Refresh list on return to home
   } else {
     homeView.classList.add("hidden");
     wizardView.classList.remove("hidden");
   }
 }
+
 function pillForSeverity(sev) {
   severityPill.classList.remove("hidden","emergency","urgent","routine");
   if (!sev) { severityPill.classList.add("hidden"); return; }
@@ -64,6 +75,7 @@ function pillForSeverity(sev) {
   severityPill.classList.add(s);
   severityPill.textContent = s.charAt(0).toUpperCase() + s.slice(1);
 }
+
 function renderBreadcrumb() {
   breadcrumb.innerHTML = "";
   history.forEach(h => {
@@ -73,6 +85,7 @@ function renderBreadcrumb() {
     breadcrumb.appendChild(span);
   });
 }
+
 function renderNode(nodeId) {
   currentNodeId = nodeId;
   const node = algo.nodes[nodeId];
@@ -81,8 +94,18 @@ function renderNode(nodeId) {
     saveState();
     return;
   }
+  
   renderBreadcrumb();
   pillForSeverity(node.severity);
+
+  // Red Flags logic
+  if (algo.disclaimer && algo.disclaimer.length > 0) {
+    redFlagsBlock.classList.remove("hidden");
+    redFlagsBlock.innerHTML = "<strong>🚨 Red Flags & Guidelines:</strong><ul>" + 
+      algo.disclaimer.map(d => `<li>${d}</li>`).join("") + "</ul>";
+  } else {
+    redFlagsBlock.classList.add("hidden");
+  }
 
   if (node.type === "question") {
     outcomeBlock.classList.add("hidden");
@@ -131,6 +154,7 @@ function renderNode(nodeId) {
   copyStatus.textContent = "";
   saveState();
 }
+
 function showOutcome(title, bullets, severity) {
   questionBlock.classList.add("hidden");
   outcomeBlock.classList.remove("hidden");
@@ -144,6 +168,7 @@ function showOutcome(title, bullets, severity) {
   outcomeNext.innerHTML = "";
   pillForSeverity(severity);
 }
+
 async function loadAlgo(algoMeta, restoreState = null) {
   const res = await fetch(algoMeta.path, { cache: "no-store" });
   algo = await res.json();
@@ -160,12 +185,14 @@ async function loadAlgo(algoMeta, restoreState = null) {
   renderTree();
   renderNode(currentNodeId);
 }
+
+// Search & Tree logic
 function renderTree(filter = "") {
   if (!algo) return;
   const q = filter.trim().toLowerCase();
   treeView.innerHTML = "";
-
   const entries = Object.entries(algo.nodes);
+  
   for (const [id, node] of entries) {
     const hay = (node.text ?? "") + " " + (node.title ?? "") + " " + (node.help ?? "") + " " + (node.bullets ?? []).join(" ");
     if (q && !hay.toLowerCase().includes(q)) continue;
@@ -174,49 +201,21 @@ function renderTree(filter = "") {
     const s = document.createElement("summary");
     s.textContent = node.type === "question" ? node.text : node.title;
     d.appendChild(s);
-
-    const meta = document.createElement("div");
-    meta.className = "nodeMeta";
-    meta.innerHTML = `<code>${escapeHtml(id)}</code> • ${node.type}${node.severity ? " • " + escapeHtml(node.severity) : ""}`;
-    d.appendChild(meta);
-
-    const body = document.createElement("div");
-    body.className = "nodeBody";
-
-    if (node.type === "question") {
-      const help = node.help ? `<div class="muted small" style="margin-top:6px">${escapeHtml(node.help)}</div>` : "";
-      const answers = (node.answers ?? []).map(a => `• ${escapeHtml(a.label)} → <code>${escapeHtml(a.next)}</code>`).join("<br>");
-      body.innerHTML = `${help}<div style="margin-top:10px">${answers}</div>`;
-    } else {
-      const bullets = (node.bullets ?? []).map(b => `<li>${escapeHtml(b)}</li>`).join("");
-      body.innerHTML = `<ul class="bullets">${bullets}</ul>`;
-      if (node.next?.length) {
-        const nxt = node.next.map(n => `• ${escapeHtml(n.label)} → <code>${escapeHtml(n.next)}</code>`).join("<br>");
-        body.innerHTML += `<div style="margin-top:10px">${nxt}</div>`;
-      }
-    }
-    d.appendChild(body);
     treeView.appendChild(d);
   }
 }
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+
+// ESR Copy Template
 function summaryText() {
   const lines = [];
-  lines.push(`Presenting complaint: ${algo?.title || ""}`);
+  lines.push(`Presenting complaint: ${algo?.title || "Clinical Pathway"}`);
   lines.push(`Working differential: [Type here]`);
   lines.push(`Examination summary: [Type here]`);
   
   const node = algo?.nodes?.[currentNodeId];
-  let plan = "Plan: ";
+  let plan = "\nPlan: ";
   if (node?.type === "outcome") {
-    plan += (node.title ?? "Outcome") + " - " + (node.bullets ?? []).join("; ");
+    plan += (node.title ?? "Outcome") + "\n- " + (node.bullets ?? []).join("\n- ");
   } else {
     plan += "[Type here]";
   }
@@ -226,14 +225,14 @@ function summaryText() {
     lines.push("\n--- Triage Pathway Log ---");
     history.forEach((h, i) => lines.push(`${i+1}. ${h.q} -> ${h.a}`));
   }
-  
   return lines.join("\n");
 }
+
 async function copySummary() {
   const text = summaryText();
   try {
     await navigator.clipboard.writeText(text);
-    copyStatus.textContent = "Copied to clipboard.";
+    copyStatus.textContent = "ESR Template copied to clipboard.";
   } catch {
     const ta = document.createElement("textarea");
     ta.value = text;
@@ -244,16 +243,68 @@ async function copySummary() {
     copyStatus.textContent = "Copied to clipboard (fallback).";
   }
 }
-function initHome() {
+
+// Home screen logic (Favourites, Recents, Search)
+function trackRecent(id) {
+  recents = [id, ...recents.filter(r => r !== id)].slice(0, 5);
+  localStorage.setItem("eyeAlgosRecents", JSON.stringify(recents));
+}
+
+function toggleFav(id, e) {
+  e.stopPropagation();
+  if (favourites.includes(id)) {
+    favourites = favourites.filter(f => f !== id);
+  } else {
+    favourites.push(id);
+  }
+  localStorage.setItem("eyeAlgosFavs", JSON.stringify(favourites));
+  initHome(homeSearchInput.value);
+}
+
+function initHome(filterText = "") {
   algoList.innerHTML = "";
-  ALGOS.forEach(a => {
+  const q = filterText.toLowerCase();
+
+  // Sort: Favourites first, then Recents, then Alphabetical
+  const sortedAlgos = [...ALGOS].sort((a, b) => {
+    const aFav = favourites.includes(a.id);
+    const bFav = favourites.includes(b.id);
+    if (aFav && !bFav) return -1;
+    if (!aFav && bFav) return 1;
+    return a.title.localeCompare(b.title);
+  });
+
+  sortedAlgos.forEach(a => {
+    if (q && !a.title.toLowerCase().includes(q) && !a.blurb.toLowerCase().includes(q)) return;
+
     const b = document.createElement("button");
     b.className = "algoBtn";
-    b.innerHTML = `<div class="name">${a.title}</div><div class="meta">${a.blurb}</div>`;
-    b.onclick = () => loadAlgo(a);
+    
+    const isFav = favourites.includes(a.id);
+    const isRecent = recents.includes(a.id);
+    const tags = `${isFav ? "⭐ Fav " : ""}${isRecent ? "🕒 Recent" : ""}`;
+
+    b.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="name">${a.title}</span>
+        <span class="fav-star" style="cursor:pointer; font-size: 1.5rem; color: #f39c12;">${isFav ? "★" : "☆"}</span>
+      </div>
+      <div class="meta">${a.blurb}</div>
+      <div class="meta" style="color:#2ecc71; font-size: 0.8em; margin-top: 5px;">${tags}</div>
+    `;
+    
+    b.querySelector('.fav-star').onclick = (e) => toggleFav(a.id, e);
+    b.onclick = (e) => {
+      if(!e.target.classList.contains('fav-star')) {
+        trackRecent(a.id);
+        loadAlgo(a);
+      }
+    };
     algoList.appendChild(b);
   });
 }
+
+// Event Listeners
 btnHome.onclick = () => setView("home");
 btnReset.onclick = () => { if (!algo) return; history = []; renderNode(algo.start); saveState(); };
 btnBack.onclick = () => {
@@ -265,6 +316,7 @@ btnBack.onclick = () => {
   saveState();
 };
 btnCopy.onclick = () => copySummary();
+homeSearchInput.addEventListener("input", (e) => initHome(e.target.value));
 treeSearch.addEventListener("input", (e) => renderTree(e.target.value));
 
 async function boot() {
@@ -282,4 +334,5 @@ async function boot() {
     catch (e) { console.warn("SW registration failed", e); }
   }
 }
+
 boot();
