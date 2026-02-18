@@ -1,0 +1,324 @@
+{
+  "id": "red-eye",
+  "title": "Red eye (triage pathway)",
+  "disclaimer": [
+    "For personal clinical reference only. Do not enter patient identifiable data.",
+    "If suspected open globe: shield, avoid pressure/IOP measurement, urgent senior review."
+  ],
+  "start": "q1",
+  "nodes": {
+    "q1": {
+      "type": "question",
+      "text": "History of trauma?",
+      "help": "Any blunt/penetrating injury, chemical exposure, foreign body, or post-op trauma.",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "t0"
+        },
+        {
+          "label": "No",
+          "next": "q5"
+        }
+      ]
+    },
+    "t0": {
+      "type": "question",
+      "text": "Concern for open globe / penetrating injury?",
+      "help": "Suggestive features: peaked pupil, uveal prolapse, very low IOP, Seidel+, severe subconjunctival haemorrhage 360°, misshapen globe, large corneal/scleral laceration.",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "o_open_globe"
+        },
+        {
+          "label": "No / unlikely",
+          "next": "q2"
+        }
+      ]
+    },
+    "o_open_globe": {
+      "type": "outcome",
+      "title": "Suspected open globe",
+      "severity": "emergency",
+      "bullets": [
+        "Do not measure IOP or apply pressure.",
+        "Eye shield; keep nil by mouth if surgery likely.",
+        "Analgesia + antiemetic; tetanus as indicated.",
+        "Urgent ophthalmology senior review / theatre pathway."
+      ]
+    },
+    "q2": {
+      "type": "question",
+      "text": "Is vision normal (for the patient)?",
+      "help": "Check VA early; compare to baseline if known.",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "o_t_vision_ok"
+        },
+        {
+          "label": "No / reduced",
+          "next": "q3"
+        }
+      ]
+    },
+    "o_t_vision_ok": {
+      "type": "outcome",
+      "title": "Trauma + normal vision",
+      "severity": "urgent",
+      "bullets": [
+        "Likely: subconjunctival haemorrhage or conjunctival laceration (after excluding red flags).",
+        "Still examine: cornea for abrasion/FB, AC depth, pupil shape, EOMs, and consider IOP if no open globe concern."
+      ],
+      "next": [
+        {
+          "label": "Continue assessment (if needed)",
+          "next": "q3"
+        }
+      ]
+    },
+    "q3": {
+      "type": "question",
+      "text": "Red flags after trauma? (RAPD, severe pain/proptosis, restricted EOMs, hyphema, abnormal pupil/iris shape)",
+      "help": "If RAPD or proptosis + tight lids, think optic nerve compromise / retrobulbar haemorrhage; if hyphema, manage as per protocol.",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "o_t_red_flags"
+        },
+        {
+          "label": "No / none",
+          "next": "q4"
+        }
+      ]
+    },
+    "o_t_red_flags": {
+      "type": "outcome",
+      "title": "Trauma red flags present",
+      "severity": "emergency",
+      "bullets": [
+        "Check for RAPD and optic nerve function; consider retrobulbar haemorrhage if tense orbit/proptosis.",
+        "Anterior segment exam: corneal abrasion/FB, hyphema, traumatic iritis/uveitis, abnormal iris/pupil.",
+        "Escalate urgently / manage per local protocol."
+      ],
+      "next": [
+        {
+          "label": "If anterior segment findings excluded or insufficient",
+          "next": "q4"
+        }
+      ]
+    },
+    "q4": {
+      "type": "question",
+      "text": "Anterior segment cause identified (abrasion/FB, hyphema, uveitis/iritis, pupil/iris abnormality)?",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "o_t_ant_found"
+        },
+        {
+          "label": "No / not found",
+          "next": "q4b"
+        }
+      ]
+    },
+    "o_t_ant_found": {
+      "type": "outcome",
+      "title": "Manage identified anterior segment cause",
+      "severity": "urgent",
+      "bullets": [
+        "Treat per local guideline (eg FB removal + antibiotic, hyphema precautions, traumatic iritis treatment, etc).",
+        "Consider dilated posterior exam if vision reduced, high-risk mechanism, or poor view."
+      ]
+    },
+    "q4b": {
+      "type": "question",
+      "text": "Posterior segment concern or reduced view?",
+      "help": "If no clear anterior cause, or mechanism high risk, dilate if safe.",
+      "answers": [
+        {
+          "label": "Yes (dilate)",
+          "next": "o_t_dilate"
+        },
+        {
+          "label": "No (low concern)",
+          "next": "o_t_low_concern"
+        }
+      ]
+    },
+    "o_t_dilate": {
+      "type": "outcome",
+      "title": "Dilate and examine posterior segment",
+      "severity": "urgent",
+      "bullets": [
+        "Look for: vitreous haemorrhage, choroidal rupture, retinal detachment or dialysis.",
+        "If poor view: consider B-scan / urgent senior input."
+      ]
+    },
+    "o_t_low_concern": {
+      "type": "outcome",
+      "title": "Low concern after trauma with normal findings",
+      "severity": "routine",
+      "bullets": [
+        "Consider discharge with safety-netting if exam reassuring and VA normal.",
+        "Return same day if worsening pain, photophobia, reduced vision, new flashes/floaters, or increasing swelling."
+      ]
+    },
+    "q5": {
+      "type": "question",
+      "text": "Contact lens wearer?",
+      "help": "If yes, have low threshold to exclude microbial keratitis (corneal ulcer).",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "q5a"
+        },
+        {
+          "label": "No",
+          "next": "q6"
+        }
+      ]
+    },
+    "q5a": {
+      "type": "question",
+      "text": "Corneal ulcer / microbial keratitis suspected?",
+      "help": "Pain, photophobia, reduced vision, corneal infiltrate/epithelial defect, AC reaction.",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "o_ulcer"
+        },
+        {
+          "label": "No / excluded",
+          "next": "q6"
+        }
+      ]
+    },
+    "o_ulcer": {
+      "type": "outcome",
+      "title": "Possible corneal ulcer (contact lens risk)",
+      "severity": "urgent",
+      "bullets": [
+        "Urgent ophthalmology review; consider corneal scrape/culture per protocol.",
+        "Start treatment per local guideline; stop contact lens use."
+      ]
+    },
+    "q6": {
+      "type": "question",
+      "text": "Intraocular pressure elevated?",
+      "help": "Measure IOP unless open globe suspected. High IOP can indicate angle closure or hypertensive uveitis.",
+      "answers": [
+        {
+          "label": "High",
+          "next": "o_high_iop"
+        },
+        {
+          "label": "Normal/low",
+          "next": "q7"
+        },
+        {
+          "label": "Not measured / unsure",
+          "next": "q7"
+        }
+      ]
+    },
+    "o_high_iop": {
+      "type": "outcome",
+      "title": "High IOP with red eye",
+      "severity": "emergency",
+      "bullets": [
+        "Consider: acute angle closure attack / angle closure glaucoma; hypertensive uveitis.",
+        "Assess for corneal oedema, mid-dilated fixed pupil, shallow AC, nausea/vomiting, severe pain.",
+        "Treat/escalate urgently per protocol."
+      ]
+    },
+    "q7": {
+      "type": "question",
+      "text": "Pain or photophobia?",
+      "help": "Photophobia suggests corneal or anterior uveal pathology; severe boring pain can suggest scleritis.",
+      "answers": [
+        {
+          "label": "Yes",
+          "next": "q8"
+        },
+        {
+          "label": "No",
+          "next": "o_no_pain"
+        }
+      ]
+    },
+    "q8": {
+      "type": "question",
+      "text": "Anterior segment findings? (keratitis, anterior uveitis, hypopyon, blepharitis, scleritis/episcleritis)",
+      "help": "Use slit lamp + fluorescein; look for AC cells/flare; lid margin disease.",
+      "answers": [
+        {
+          "label": "Yes (found)",
+          "next": "o_ant_found"
+        },
+        {
+          "label": "No clear finding",
+          "next": "q9"
+        }
+      ]
+    },
+    "o_ant_found": {
+      "type": "outcome",
+      "title": "Manage based on identified anterior segment cause",
+      "severity": "urgent",
+      "bullets": [
+        "Treat per local guideline (keratitis/uveitis/scleritis/blepharitis etc).",
+        "If vision blurred without clear anterior explanation, consider posterior segment assessment."
+      ],
+      "next": [
+        {
+          "label": "If blurred vision persists / poor view",
+          "next": "q9"
+        }
+      ]
+    },
+    "q9": {
+      "type": "question",
+      "text": "Blurred vision without clear anterior cause?",
+      "help": "If yes, consider dilated fundus exam.",
+      "answers": [
+        {
+          "label": "Yes (dilate)",
+          "next": "o_dilate_nontrauma"
+        },
+        {
+          "label": "No",
+          "next": "o_unclear_follow"
+        }
+      ]
+    },
+    "o_dilate_nontrauma": {
+      "type": "outcome",
+      "title": "Dilate and examine posterior segment",
+      "severity": "urgent",
+      "bullets": [
+        "Consider macular oedema (eg CMO) or retinal detachment depending on symptoms and exam.",
+        "If flashes/floaters/field loss: treat as retinal pathology until proven otherwise."
+      ]
+    },
+    "o_unclear_follow": {
+      "type": "outcome",
+      "title": "No clear diagnosis yet",
+      "severity": "routine",
+      "bullets": [
+        "Re-check VA, fluorescein staining, lid eversion, and consider senior review if persistent symptoms.",
+        "Safety-net: return if pain/photophobia worsens or vision changes."
+      ]
+    },
+    "o_no_pain": {
+      "type": "outcome",
+      "title": "Minimal pain / no photophobia",
+      "severity": "routine",
+      "bullets": [
+        "Consider: conjunctivitis, episcleritis, pinguecula/pterygium, blepharitis/meibomian gland dysfunction.",
+        "Treat/supportive care per guideline; safety-net if not improving or if vision changes."
+      ]
+    }
+  }
+}
